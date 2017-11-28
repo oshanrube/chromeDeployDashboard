@@ -1,5 +1,3 @@
-console.log('starting');
-//window.stop();
 $('body > table:nth-child(3) > tbody > tr > td:nth-child(5)').each(function (id, td) {
     var ancor = $('<a class="subscribe-btn">Subscribe</a>');
     ancor.click(function () {
