@@ -1,0 +1,46 @@
+{
+  "manifest_version": 2,
+  "name": "TD deployment dashboard",
+  "short_name": "TD dashboard",
+  "description": "It's easy to track deployments of td",
+  "version": "0.0.1",
+  "incognito": "not_allowed",
+  "browser_action": {
+    "default_icon": "./assets/logo.png",
+    "setBadgeText": {
+      "text": "TD"
+    },
+    "default_title": "Time Doctor"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "notifications",
+    "tabs",
+    "background",
+    "https://deploy.timedoctor.com/"
+  ],
+  "background": {
+    "scripts": [
+      "./background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": [
+        "https://deploy.timedoctor.com/*"
+      ],
+      "css": [
+        "./deploy/styles.css"
+      ],
+      "js": [
+        "./assets/jquery.min.js",
+        "./deploy/javascripts.js"
+      ]
+    }
+  ],
+  "optional_permissions": [
+    "*://*/"
+  ]
+}
