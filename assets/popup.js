@@ -5,6 +5,7 @@ var loadFeeds = function () {
             var response = items['urls'][url]['response'].replace(/\n/g, "<br />");
             $('table tbody').append($('<tr><th>' + items['urls'][url]['branch_name'] + '</th></tr>'));
             $('table tbody').append($('<tr><td>' + response + '</td></tr>'));
+            chrome.runtime.sendMessage({action: "check_status", 'url': url});
         }
     });
 };

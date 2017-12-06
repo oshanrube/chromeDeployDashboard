@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(
         }
     });
 
-var notifyCompleted = function (status) {
+var notifyCompleted = function (status, item) {
     if (Notification.permission !== "granted")
         Notification.requestPermission();
     else {
@@ -40,7 +40,7 @@ var notifyCompleted = function (status) {
         }
         var notification = new Notification('Deployment completed', {
             icon: icon,
-            body: "deployment " + status + "!"
+            body: "deployment ["+item['branch_name']+"] " + status + "!"
         });
 
         notification.onclick = function () {
@@ -83,11 +83,11 @@ var loadFeed        = function (url) {
                 //
                 if (isComplete(response)) {
                     console.log('link complete');
+                    notifyCompleted(getStatus(response), items[url]);
                     items[url] = undefined;
                     chrome.storage.local.set({'urls': items}, function () {
                         console.log('link removed');
                     });
-                    notifyCompleted(getStatus(response));
                 } else {
                     setTimeout(loadUrl, 2000);
                 }
