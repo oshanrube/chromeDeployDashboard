@@ -1,5 +1,4 @@
 var loadFeeds = function () {
-    $('table tbody tr').remove();
     chrome.storage.local.get('urls', function (items) {
         for (url in items['urls']) {
             if (items['urls'][url]['response'] != undefined) {
@@ -7,15 +6,33 @@ var loadFeeds = function () {
             } else {
                 var response = "";
             }
-            console.log(items['urls'][url]);
             var branch_name = items['urls'][url]['branch_name'];
-            $('table tbody').append($('<tr id="'+branch_name+'"><th>' + items['urls'][url]['branch_name'] + '</th></tr>'));
-            $('table tbody').append($('<tr id="'+branch_name+'_response"><td>' + response + '</td></tr>'));
+            var id          = url.match(/\/([0-9:.-]*)$/)[1].replace(new RegExp(':', 'g'),'').replace(new RegExp('-', 'g'),'').replace(new RegExp('.', 'g'),'');
+            //check if the card already exists
+            if ($('#id-' + id).length > 0) {
+                //replace response
+                $('#id-' + id + ' div.card-body').html(response);
+            } else {
+                var card = '<div class="card" id="id-' + id + '">' +
+                    '   <div class="card-header" id="headingOne">' +
+                    '       <h5 class="mb-0">' +
+                    '           <button class="btn btn-link" data-toggle="collapse" data-target="#collapse' + id + '" aria-expanded="true" aria-controls="collapseOne">' + branch_name + '</button>' +
+                    '       </h5>' +
+                    '   </div>' +
+                    '   <div id="collapse' + id + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">\n' +
+                    '       <div class="card-body">' + response + '</div>\n' +
+                    '   </div>\n' +
+                    '</div>';
+                $('div#accordion').append(card);
+            }
+
             chrome.runtime.sendMessage({action: "check_status", 'url': url});
         }
     });
 };
-loadFeeds();
+$(document).ready(function () {
+    loadFeeds();
+});
 
 chrome.storage.onChanged.addListener(function () {
     loadFeeds();
