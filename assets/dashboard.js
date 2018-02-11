@@ -7,9 +7,9 @@ var loadFeeds = function () {
                 var response = "";
             }
             console.log(items['urls'][url]);
-            var matches = url.match(/\/([0-9]+\-[0-9]+\-[0-9]+)\/(.*)\/([0-9:.-]*)\./);
+            var matches     = url.match(/\/([0-9]+\-[0-9]+\-[0-9]+)\/(.*)\/([0-9:.-]*)\./);
             var branch_name = matches[2] + '-' + matches[1] + matches[3];
-            var id = url.match(/\/([0-9:.-]*)$/)[1]
+            var id          = url.match(/\/([0-9:.-]*)$/)[1]
                 .replace(new RegExp(':', 'g'), '')
                 .replace(new RegExp('-', 'g'), '')
                 .replace(new RegExp(/\./, 'g'), '');
@@ -37,6 +37,13 @@ var loadFeeds = function () {
 };
 $(document).ready(function () {
     loadFeeds();
+    chrome.storage.local.get('urls', function (items) {
+        if (items['urls'] !== undefined)
+            items = items['urls'];
+        if (items[url] !== undefined && items[url]['status'] == 'started') {
+            chrome.runtime.sendMessage({action: "check_status", 'url': url});
+        }
+    });
 });
 
 chrome.storage.onChanged.addListener(function () {
