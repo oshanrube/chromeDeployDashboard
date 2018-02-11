@@ -1,4 +1,5 @@
-var loading = [];
+var loading  = [];
+var timeouts = [];
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.action === "start_tracking") {
@@ -37,10 +38,13 @@ var notifyCompleted = function (status, item) {
             case "cancelled":
                 icon = chrome.extension.getURL('assets/states/cancelled.png');
                 break;
+            case "timeout":
+                icon = chrome.extension.getURL('assets/states/cancelled.png');
+                break;
         }
         var notification = new Notification('Deployment completed', {
             icon: icon,
-            body: "deployment ["+item['branch_name']+"] " + status + "!"
+            body: "deployment [" + item['branch_name'] + "] " + status + "!"
         });
 
         notification.onclick = function () {
@@ -49,16 +53,16 @@ var notifyCompleted = function (status, item) {
     }
 };
 var isComplete      = function (response) {
-    return response.search("Finished") > 0 || response.search("Received kill signal") > 0;
+    return response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0 || response.search("Finished") > 0 || response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0|| response.search("was not found on this server.") > 0;
 };
 var getStatus       = function (response) {
-    if (response.search("Failed build") > 0) {
+    if (response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0) {
         return "failed";
     }
     else if (response.search("This server is now online") > 0) {
         return "success";
     }
-    else if (response.search("Received kill signal") > 0) {
+    else if (response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0 || response.search("was not found on this server.") > 0) {
         return "cancelled";
     }
 };
@@ -66,7 +70,7 @@ var loadFeed        = function (url) {
     var loadUrl = function () {
         var xhr = new XMLHttpRequest();
 
-        xhr.onload = function (e) {
+        xhr.onload    = function (e) {
             //document.getElementById('feed').innerHTML = e.target.response;
             //window.scrollTo(0, document.body.scrollHeight);
             var response = e.target.response.slice(-2000);
@@ -92,6 +96,32 @@ var loadFeed        = function (url) {
                     setTimeout(loadUrl, 2000);
                 }
             });
+        };
+        xhr.ontimeout = function (e) {
+            // XMLHttpRequest timed out. Do something here.
+            console.log("timeout:" + url);
+            loading[url] = false;
+            if (timeouts[url] === undefined) {
+                timeouts[url] = 0;
+            }
+            else {
+                timeouts[url]++;
+            }
+            if (timeouts[url] > 10) {
+                //mark failed
+                chrome.storage.local.get('urls', function (items) {
+                    if (items['urls'] !== undefined)
+                        items = items['urls'];
+                    console.log('link complete');
+                    notifyCompleted("timeout", items[url]);
+                    items[url] = undefined;
+                    chrome.storage.local.set({'urls': items}, function () {
+                        console.log('link removed');
+                    });
+                });
+            } else {
+                setTimeout(loadUrl, 2000);
+            }
         };
 
         xhr.open('GET', url + '/');

@@ -38,6 +38,16 @@
         "./assets/jquery.min.js",
         "./deploy/javascripts.js"
       ]
+    },
+    {
+      "run_at": "document_end",
+      "matches": [
+        "https://www.timedoctordev.com/"
+      ],
+      "js": [
+        "./assets/jquery.min.js",
+        "./welcome/javascripts.js"
+      ]
     }
   ],
   "optional_permissions": [
