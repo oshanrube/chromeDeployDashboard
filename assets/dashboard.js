@@ -6,8 +6,13 @@ var loadFeeds = function () {
             } else {
                 var response = "";
             }
-            var branch_name = items['urls'][url]['branch_name'];
-            var id          = url.match(/\/([0-9:.-]*)$/)[1].replace(new RegExp(':', 'g'),'').replace(new RegExp('-', 'g'),'').replace(new RegExp('.', 'g'),'');
+            console.log(items['urls'][url]);
+            var matches = url.match(/\/([0-9]+\-[0-9]+\-[0-9]+)\/(.*)\/([0-9:.-]*)\./);
+            var branch_name = matches[2] + '-' + matches[1] + matches[3];
+            var id = url.match(/\/([0-9:.-]*)$/)[1]
+                .replace(new RegExp(':', 'g'), '')
+                .replace(new RegExp('-', 'g'), '')
+                .replace(new RegExp(/\./, 'g'), '');
             //check if the card already exists
             if ($('#id-' + id).length > 0) {
                 //replace response
