@@ -22,12 +22,17 @@ var loadFeeds = function () {
                     '   <div class="card-header" id="headingOne">' +
                     '       <h5 class="mb-0">' +
                     '           <button class="btn btn-link" data-toggle="collapse" data-target="#collapse' + id + '" aria-expanded="true" aria-controls="collapseOne">' + branch_name + '</button>' +
+                    '           <button class="refreshBtn">refresh</button>' +
                     '       </h5>' +
                     '   </div>' +
                     '   <div id="collapse' + id + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">\n' +
                     '       <div class="card-body">' + response + '</div>\n' +
                     '   </div>\n' +
                     '</div>';
+                card     = $(card);
+                card.find('button.refreshBtn').click(function () {
+                    chrome.runtime.sendMessage({action: "check_status", 'url': url});
+                });
                 $('div#accordion').append(card);
             }
 
@@ -46,6 +51,7 @@ $(document).ready(function () {
     });
 });
 
-chrome.storage.onChanged.addListener(function () {
+chrome.storage.onChanged.addListener(function (changes, areaName) {
+    console.log(changes, areaName);
     loadFeeds();
 });

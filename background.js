@@ -53,7 +53,7 @@ var notifyCompleted = function (status, item) {
     }
 };
 var isComplete      = function (response) {
-    return response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0 || response.search("Finished") > 0 || response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0|| response.search("was not found on this server.") > 0;
+    return response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0 || response.search("Finished") > 0 || response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0 || response.search("was not found on this server.") > 0;
 };
 var getStatus       = function (response) {
     if (response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0) {
