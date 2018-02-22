@@ -6,7 +6,6 @@ var loadFeeds = function () {
             } else {
                 var response = "";
             }
-            console.log(items['urls'][url]);
             var matches     = url.match(/\/([0-9]+\-[0-9]+\-[0-9]+)\/(.*)\/([0-9:.-]*)\./);
             var branch_name = matches[2] + '-' + matches[1] + matches[3];
             var id          = url.match(/\/([0-9:.-]*)$/)[1]
@@ -35,23 +34,13 @@ var loadFeeds = function () {
                 });
                 $('div#accordion').append(card);
             }
-
+            console.log('check status on', url);
             chrome.runtime.sendMessage({action: "check_status", 'url': url});
         }
     });
 };
-$(document).ready(function () {
-    loadFeeds();
-    chrome.storage.local.get('urls', function (items) {
-        if (items['urls'] !== undefined)
-            items = items['urls'];
-        if (items[url] !== undefined && items[url]['status'] == 'started') {
-            chrome.runtime.sendMessage({action: "check_status", 'url': url});
-        }
-    });
-});
-
+$(document).ready(loadFeeds);
 chrome.storage.onChanged.addListener(function (changes, areaName) {
-    console.log(changes, areaName);
+    console.log('loading feeds');
     loadFeeds();
 });

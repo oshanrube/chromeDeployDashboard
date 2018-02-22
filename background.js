@@ -19,6 +19,7 @@ chrome.runtime.onMessage.addListener(
             });
             sendResponse({status: "started"});
         } else if (request.action === "check_status") {
+            console.log('checking up on ', request.url);
             loadFeed(request.url);
         }
     });
@@ -53,7 +54,7 @@ var notifyCompleted = function (status, item) {
     }
 };
 var isComplete      = function (response) {
-    return response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0 || response.search("Finished") > 0 || response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0 || response.search("was not found on this server.") > 0;
+    return response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0 || response.search("Finished!") > 0 || response.search("Received kill signal") > 0 || response.search("another deployment just started") > 0 || response.search("was not found on this server.") > 0;
 };
 var getStatus       = function (response) {
     if (response.search("Failed build") > 0 || response.search("Deployment FAILED") > 0) {
@@ -67,70 +68,70 @@ var getStatus       = function (response) {
     }
 };
 var loadFeed        = function (url) {
-    var loadUrl = function () {
+    var loadUrl = function (url) {
+        console.log('load url', url);
         var xhr = new XMLHttpRequest();
-
-        xhr.onload    = function (e) {
-            //document.getElementById('feed').innerHTML = e.target.response;
-            //window.scrollTo(0, document.body.scrollHeight);
-            var response = e.target.response.slice(-2000);
-            chrome.storage.local.get('urls', function (items) {
-                if (items['urls'] !== undefined)
-                    items = items['urls'];
-                if (items[url] !== undefined) {
-                    items[url]['response'] = response;
-                    chrome.storage.local.set({'urls': items}, function () {
-                        // Notify that we saved.
-                        console.log('response saved');
-                    });
-                }
-                //
-                if (isComplete(response)) {
-                    console.log('link complete');
-                    notifyCompleted(getStatus(response), items[url]);
-                    items[url] = undefined;
-                    chrome.storage.local.set({'urls': items}, function () {
-                        console.log('link removed');
+        xhr.open('GET', url + '/', false);
+        xhr.send(null);
+        xhr.onreadystatechange = function (e) {
+            console.log('done loading', url);
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = e.target.response.slice(-2000);
+                    chrome.storage.local.get('urls', function (items) {
+                        if (items['urls'] !== undefined)
+                            items = items['urls'];
+                        if (items[url] !== undefined) {
+                            items[url]['response'] = response;
+                            chrome.storage.local.set({'urls': items}, function () {
+                                // Notify that we saved.
+                                console.log('response saved');
+                            });
+                        }
+                        //
+                        if (isComplete(response)) {
+                            console.log('link complete');
+                            notifyCompleted(getStatus(response), items[url]);
+                            items[url] = undefined;
+                            chrome.storage.local.set({'urls': items}, function () {
+                                console.log('link removed');
+                            });
+                        } else {
+                            setTimeout(function () {loadUrl(url)}, 2000);
+                        }
                     });
                 } else {
-                    setTimeout(loadUrl, 2000);
+                    console.log("timeout:" + url);
+                    loading[url] = false;
+                    if (timeouts[url] === undefined) {
+                        timeouts[url] = 0;
+                    }
+                    else {
+                        timeouts[url]++;
+                    }
+                    if (timeouts[url] > 10) {
+                        //mark failed
+                        chrome.storage.local.get('urls', function (items) {
+                            if (items['urls'] !== undefined)
+                                items = items['urls'];
+                            console.log('link complete');
+                            notifyCompleted("timeout", items[url]);
+                            items[url] = undefined;
+                            chrome.storage.local.set({'urls': items}, function () {
+                                console.log('link removed');
+                            });
+                        });
+                    } else {
+                        setTimeout(function () {loadUrl(url)}, 2000);
+                    }
                 }
-            });
-        };
-        xhr.ontimeout = function (e) {
-            // XMLHttpRequest timed out. Do something here.
-            console.log("timeout:" + url);
-            loading[url] = false;
-            if (timeouts[url] === undefined) {
-                timeouts[url] = 0;
-            }
-            else {
-                timeouts[url]++;
-            }
-            if (timeouts[url] > 10) {
-                //mark failed
-                chrome.storage.local.get('urls', function (items) {
-                    if (items['urls'] !== undefined)
-                        items = items['urls'];
-                    console.log('link complete');
-                    notifyCompleted("timeout", items[url]);
-                    items[url] = undefined;
-                    chrome.storage.local.set({'urls': items}, function () {
-                        console.log('link removed');
-                    });
-                });
-            } else {
-                setTimeout(loadUrl, 2000);
             }
         };
-
-        xhr.open('GET', url + '/');
-        xhr.send(null);
     };
 
     if (loading[url] === undefined) {
         loading[url] = true;
-        loadUrl();
+        loadUrl(url);
     }
     return false;
 };
