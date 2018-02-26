@@ -21,7 +21,8 @@ var loadFeeds = function () {
                     '   <div class="card-header" id="headingOne">' +
                     '       <h5 class="mb-0">' +
                     '           <button class="btn btn-link" data-toggle="collapse" data-target="#collapse' + id + '" aria-expanded="true" aria-controls="collapseOne">' + branch_name + '</button>' +
-                    '           <button class="refreshBtn">refresh</button>' +
+                    '           <button class="pull-right refreshBtn">refresh</button>' +
+                    '           <button class="pull-right closeBtn">close</button>' +
                     '       </h5>' +
                     '   </div>' +
                     '   <div id="collapse' + id + '" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">\n' +
@@ -31,6 +32,9 @@ var loadFeeds = function () {
                 card     = $(card);
                 card.find('button.refreshBtn').click(function () {
                     chrome.runtime.sendMessage({action: "check_status", 'url': url});
+                });
+                card.find('button.closeBtn').click(function () {
+                    chrome.runtime.sendMessage({action: "close_url", 'url': url});
                 });
                 $('div#accordion').append(card);
             }

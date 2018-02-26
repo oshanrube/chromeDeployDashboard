@@ -21,7 +21,18 @@ chrome.runtime.onMessage.addListener(
         } else if (request.action === "check_status") {
             console.log('checking up on ', request.url);
             loadFeed(request.url);
+        } else if (request.action === "close_url") {
+            console.log('closing the url ', request.url);
+            chrome.storage.local.get('urls', function (items) {
+                if (items['urls'] !== undefined)
+                    items = items['urls'];
+                items[request.url] = undefined;
+                chrome.storage.local.set({'urls': items}, function () {
+                    console.log('link removed');
+                });
+            });
         }
+
     });
 
 var notifyCompleted = function (status, item) {
@@ -51,6 +62,10 @@ var notifyCompleted = function (status, item) {
         notification.onclick = function () {
             chrome.tabs.create({url: chrome.extension.getURL('index.html')});
         };
+
+        setTimeout(function(){
+            notification.close();
+        },1000);
     }
 };
 var isComplete      = function (response) {
@@ -72,7 +87,6 @@ var loadFeed        = function (url) {
         console.log('load url', url);
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url + '/', false);
-        xhr.send(null);
         xhr.onreadystatechange = function (e) {
             console.log('done loading', url);
             if (xhr.readyState === 4) {
@@ -127,6 +141,8 @@ var loadFeed        = function (url) {
                 }
             }
         };
+
+        xhr.send(null);
     };
 
     if (loading[url] === undefined) {
