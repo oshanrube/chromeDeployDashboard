@@ -19,6 +19,7 @@ chrome.runtime.onMessage.addListener(
             });
             sendResponse({status: "started"});
         } else if (request.action === "check_status") {
+            console.log(request);
             console.log('checking up on ', request.url);
             loadFeed(request.url);
         } else if (request.action === "close_url") {
