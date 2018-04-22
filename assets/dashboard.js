@@ -44,7 +44,10 @@ var loadFeeds = function () {
             chrome.runtime.sendMessage({action: "check_status", 'url': url});
         }
         $.each($('div.card'), function (key, value) {
-            console.log(key + ": " + $(value).hasClass('active'));
+            if(!$(value).hasClass('active'))
+            {
+                $(value).remove();
+            }
         });
     });
 };
