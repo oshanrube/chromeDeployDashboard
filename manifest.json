@@ -42,7 +42,8 @@
     {
       "run_at": "document_end",
       "matches": [
-        "https://www.timedoctordev.com/"
+        "https://www.timedoctordev.com/",
+        "https://www.timedoctortest.com/"
       ],
       "js": [
         "./assets/jquery.min.js",
