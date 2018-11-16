@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener(
 var notifyCompleted = function (status, item) {
   if (Notification.permission !== "granted")
     Notification.requestPermission();
-  else {
+  else if (item) {
     var icon = chrome.extension.getURL('assets/states/cancelled.png');
     switch (status) {
       case "failed":
@@ -87,7 +87,7 @@ var loadFeed        = function (url) {
   var loadUrl = function (url) {
     console.log('load url', url);
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', url + '/', false);
+    xhr.open('GET', url + '/');
     xhr.onreadystatechange = function (e) {
       console.log('done loading', url, xhr.readyState, xhr.status);
       if (xhr.readyState === 4) {
@@ -144,7 +144,9 @@ var loadFeed        = function (url) {
         console.log('xhr.readyState', xhr.readyState);
       }
     };
-
+    xhr.onerror= function(e) {
+      console.log("Error fetching " + url);
+    };
     xhr.send(null);
   };
 
