@@ -67,7 +67,10 @@ var loadFeeds = function () {
             }
         }
         $.each($('div.card'), function (key, value) {
-            console.log(key + ": " + $(value).hasClass('active'));
+            if(!$(value).hasClass('active'))
+            {
+                $(value).remove();
+            }
         });
     });
 };
