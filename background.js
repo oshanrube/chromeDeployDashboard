@@ -19,7 +19,6 @@ chrome.runtime.onMessage.addListener(
             console.log('request.action', request);
             deleteDeployment(request.url);
         } else if (request.action === "check_status") {
-            console.log(request);
             console.log('checking up on ', request.url);
             loadFeed(request.url);
         }

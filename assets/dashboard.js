@@ -21,8 +21,10 @@ var loadFeeds = function () {
             if (items['urls'][url]['status'] === "closed") {
                 $('#id-' + id).remove();
                 var deployment_status = 'secondary';
-                if (deployment.dedployment_status == "success") {
+                if (deployment.dedployment_status === "success") {
                     deployment_status = "success";
+                } else if (deployment.dedployment_status === "failed") {
+                    deployment_status = "danger";
                 }
 
                 var card = '<span class="badge badge-' + deployment_status + '">' + branch_name + "-" + deployment.date + '<a href="' + url + '" class="pull-right closeBtn">x</a>' + '</span>';
