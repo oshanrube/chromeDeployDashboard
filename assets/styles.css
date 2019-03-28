@@ -1,4 +1,10 @@
 .pull-right {
   float: right; }
 
+.badge {
+  margin-left: 5px;
+  margin-bottom: 5px; }
+  .badge a {
+    margin-left: 5px; }
+
 /*# sourceMappingURL=styles.css.map */

@@ -42,6 +42,8 @@
     {
       "run_at": "document_end",
       "matches": [
+        "https://www.timedoctortest.com/",
+        "https://www.timedoctorpreprod.com/",
         "https://www.timedoctordev.com/"
       ],
       "js": [
